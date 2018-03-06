@@ -44,14 +44,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
   // Adding measurements and noise to each particle
-  normal_distribution<double> measnoise_x(0, std_pos[0]);
-  normal_distribution<double> measnoise_y(0, std_pos[1]);
-  normal_distribution<double> measnoise_theta(0, std_pos[2]);
   default_random_engine gen;
-  
-  double noise_x = measnoise_x(gen); 
-  double noise_y = measnoise_y(gen); 
-  double noise_theta = measnoise_theta(gen);
   double vdt;
   double v_yawrate;
   double yawrate_dt;
@@ -62,14 +55,25 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   
   for (int i = 0; i < num_particles; i++) {
     if(yaw_rate == 0) {
-      particles[i].x += vdt * cos(particles[i].theta) + noise_x;
-      particles[i].y += vdt * sin(particles[i].theta) + noise_y;
-      particles[i].theta += noise_theta;
+      particles[i].x += vdt * cos(particles[i].theta);
+      particles[i].y += vdt * sin(particles[i].theta);
     } else {
-      particles[i].x += v_yawrate * (sin(particles[i].theta + yawrate_dt) - sin(particles[i].theta)) + noise_x;
-      particles[i].y += v_yawrate * (cos(particles[i].theta) - cos(particles[i].theta + yawrate_dt)) + noise_y;
-      particles[i].theta += yawrate_dt + noise_theta;
+      particles[i].x += v_yawrate * (sin(particles[i].theta + yawrate_dt) - sin(particles[i].theta));
+      particles[i].y += v_yawrate * (cos(particles[i].theta) - cos(particles[i].theta + yawrate_dt));
+      particles[i].theta += yawrate_dt;
     }
+
+    normal_distribution<double> measnoise_x(particles[i].x, std_pos[0]);
+    normal_distribution<double> measnoise_y(particles[i].y, std_pos[1]);
+    normal_distribution<double> measnoise_theta(particles[i].theta, std_pos[2]);
+    double noise_x = measnoise_x(gen); 
+    double noise_y = measnoise_y(gen); 
+    double noise_theta = measnoise_theta(gen);
+
+    particles[i].x += noise_x;
+    particles[i].y += noise_y;
+    particles[i].theta += noise_theta;
+
     // Normalize theta
     if(particles[i].theta > M_PI)
       particles[i].theta -= 2*M_PI;
