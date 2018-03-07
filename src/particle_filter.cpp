@@ -38,9 +38,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
     particle.weight = 1;
     particles.push_back(particle);
 
-    // Normalize theta
-    particles[i].theta = normalizeTheta(particles[i].theta);
-    cout << "Particle " << i + 1 << " " << particles[i].x << " " << particles[i].y << " " << particles[i].theta << endl;
+    //cout << "Particle " << i + 1 << " " << particles[i].x << " " << particles[i].y << " " << particles[i].theta << endl;
   }
   is_initialized = true;
 }
@@ -53,7 +51,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   double yawrate_dt;
 
   vdt = velocity * delta_t;	
-  v_yawrate = velocity/yaw_rate;
+  if(yaw_rate) v_yawrate = velocity/yaw_rate;
   yawrate_dt = yaw_rate * delta_t;
   
   for (int i = 0; i < num_particles; i++) {
@@ -69,16 +67,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
     normal_distribution<double> measnoise_x(particles[i].x, std_pos[0]);
     normal_distribution<double> measnoise_y(particles[i].y, std_pos[1]);
     normal_distribution<double> measnoise_theta(particles[i].theta, std_pos[2]);
-    double noise_x = measnoise_x(gen); 
-    double noise_y = measnoise_y(gen); 
-    double noise_theta = measnoise_theta(gen);
-
-    particles[i].x += noise_x;
-    particles[i].y += noise_y;
-    particles[i].theta += noise_theta;
-
-    // Normalize theta
-    particles[i].theta = normalizeTheta(particles[i].theta);
+    particles[i].x = measnoise_x(gen); 
+    particles[i].y = measnoise_y(gen); 
+    particles[i].theta = measnoise_theta(gen);
   }
 }
 
