@@ -70,6 +70,16 @@ inline double * getError(double gt_x, double gt_y, double gt_theta, double pf_x,
 	return error;
 }
 
+inline double normalizeTheta(double theta) {
+	// Normalize theta
+	if(theta > 2*M_PI)
+	  theta = fmod(theta,(2*M_PI));
+	if(theta < 0)
+	  theta = fmod(theta,(2*M_PI)) + (2*M_PI);
+
+	return theta;
+}
+
 /* Reads map data from a file.
  * @param filename Name of file containing map data.
  * @output True if opening and reading file was successful

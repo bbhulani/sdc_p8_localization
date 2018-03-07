@@ -37,6 +37,9 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
     particle.theta = dist_theta(gen);
     particle.weight = 1;
     particles.push_back(particle);
+
+    // Normalize theta
+    particles[i].theta = normalizeTheta(particles[i].theta);
     cout << "Particle " << i + 1 << " " << particles[i].x << " " << particles[i].y << " " << particles[i].theta << endl;
   }
   is_initialized = true;
@@ -75,10 +78,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
     particles[i].theta += noise_theta;
 
     // Normalize theta
-    if(particles[i].theta > M_PI)
-      particles[i].theta -= 2*M_PI;
-    if(particles[i].theta < -M_PI)
-      particles[i].theta += 2*M_PI;
+    particles[i].theta = normalizeTheta(particles[i].theta);
   }
 }
 
